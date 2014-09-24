@@ -1,0 +1,20 @@
+{
+    "name": "thepaavero/codegen",
+    "description": "Generate codes for campaigns etc.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Pekka Siiriäinen",
+            "email": "nospam@astudios.org"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+    	"php": ">=5.5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ThePaavero\\CodeGen\\": "src/"
+        }
+    }
+}
