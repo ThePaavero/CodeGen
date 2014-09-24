@@ -10,8 +10,11 @@
  */
 class CodeGen {
 
+	public $newline;
+
 	private $config;
 	private $codes;
+	private $append;
 
 	/**
 	 * Constructor
@@ -21,8 +24,15 @@ class CodeGen {
 	public function __construct($config)
 	{
 		$this->codes = [];
+
+		// The following config keys are optional because they have a default
+		$this->append = isset($config['append']) ? $config['append'] : false;
+		$this->newline = isset($config['newline']) ? $config['newline'] : "\r\n";
+
 		$this->config = $config;
 
+		// These config keys are mandatory because we don't want to guess their
+		// intended values.
 		$required_config_keys = [
 			'amount',
 			'codeLength',
@@ -30,14 +40,20 @@ class CodeGen {
 			'file'
 		];
 
-		// Make sure we have all config values set
+		// Make sure we have all mandatory config values set
 		foreach($required_config_keys as $key)
 		{
 			if( ! isset($this->config[$key]))
 			{
 				throw new \Exception('Config value "' . $key . '" not set.', 1);
-
 			}
+		}
+
+		// If we're appending to an existing list of codes, pull that list
+		// into our codes array in order to avoid duplicates.
+		if($this->append === true && file_exists($this->config['file']))
+		{
+			$this->codes = file($this->config['file']);
 		}
 	}
 
@@ -55,7 +71,7 @@ class CodeGen {
 			$codes[] = $this->generateCode();
 		}
 
-		file_put_contents($this->config['file'], implode("\r\n", $codes));
+		file_put_contents($this->config['file'], implode($this->newline, $codes) . $this->newline, FILE_APPEND);
 	}
 
 	/**
@@ -108,8 +124,8 @@ class CodeGen {
 	{
 		$errors = [];
 
-		// Make sure our file doesn't exist
-		if(file_exists($this->config['file']))
+		// Make sure our file doesn't exist (unless we're appending)
+		if(file_exists($this->config['file']) && ! $this->append)
 		{
 			$errors[] = 'File exists';
 		}
