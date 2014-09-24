@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<title>Generate codes in chunks</title>
+	<script src='https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js'></script>
+</head>
+<body>
+	<form method='post' action='#' id='chunk-form'>
+		<p><label>Amount of codes<input type='text' name='amount' value='50000' /></label></p>
+		<p><label>Amount of characters per code<input type='text' name='codeLength' value='10' /></label></p>
+		<p><label>List of characters to use (separate by comma)<input type='text' name='characters' value='A, B, C, D, E, F, G, H, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, 1, 2, 3, 4, 5, 6, 7, 9' /></label></p>
+		<p><label>File name<input type='text' name='file' value='codes.txt' /></label></p>
+		<p>
+			<input type='submit' value='Go!'/>
+		</p>
+	</form> <!-- chunk-form -->
+	<script>
+	$(function() {
+
+		var form = $('#chunk-form');
+		var formData;
+		var iterations;
+		var successfulIterations;
+		var chunkSize;
+
+		form.on('submit', function(e) {
+
+			e.preventDefault();
+			var form = $(this);
+
+			var submitButton = form.find('input[type=submit]');
+			submitButton.val('Running, check your console...');
+			submitButton.attr('disabled', true);
+
+			var amountField = form.find('input[name=amount]');
+			var amount = parseInt(amountField.val(), 10);
+
+			// Chunk the amount
+			chunkSize = 1000;
+			amountField.val(chunkSize);
+			formData = form.serialize();
+			amountField.val(amount); // Return the original value for show
+			iterations = amount / chunkSize;
+			successfulIterations = 0;
+
+			console.log(iterations + ' iterations.');
+
+			doIteration();
+		});
+
+		function doIteration() {
+
+			console.log('Sending to controller (iteration ' + (successfulIterations+1) + ' of ' + iterations + ')...');
+
+			$.ajax({
+				url     : 'chunkController.php',
+				method  : 'post',
+				data    : formData,
+				success : function(response) {
+					console.log('Server response:');
+					console.log(response);
+					successfulIterations ++;
+
+					if(successfulIterations === iterations) {
+						alert('Done. Redirecting to code file...');
+						return window.location.href = form.find('input[name=file]').val();
+					}
+
+					doIteration(formData);
+				}
+			});
+		};
+	});
+	</script>
+</body>
+</html>
