@@ -10,11 +10,10 @@
  */
 class CodeGen {
 
-	public $newline;
-
 	private $config;
 	private $codes;
 	private $append;
+	private $newline;
 
 	/**
 	 * Constructor
@@ -118,7 +117,7 @@ class CodeGen {
 	/**
 	 * Gather problems into an array
 	 *
-	 * @return array
+	 * @return mixed false on no errors, otherwise an array
 	 */
 	private function getInitialErrors()
 	{
