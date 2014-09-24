@@ -2,61 +2,50 @@
 
 class CodeGen {
 
-	private $amount;
-	private $codeLength;
-	private $characters;
-	private $file;
+	private $config;
+	private $codes;
 
-	public function __construct()
+	public function __construct($config)
 	{
 		$this->codes = [];
+		$this->config = $config;
 
-		// Defaults
-		$this->amount = 200;
-		$this->codeLength = 10;
-		$this->characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 1, 2, 3, 4, 5, 6, 7, 9];
-		$this->file = 'codes.txt';
-	}
+		$required_config_keys = [
+			'amount',
+			'codeLength',
+			'characters',
+			'file'
+		];
 
-	public function setCodeAmount($amount = 100)
-	{
-		$this->amount = $amount;
-	}
+		foreach($required_config_keys as $key)
+		{
+			if( ! isset($this->config[$key]))
+			{
+				throw new \Exception('Config value "' . $key . '" not set.', 1);
 
-	public function setCodeLength($codeLength = 8)
-	{
-		$this->codeLength = $codeLength;
-	}
-
-	public function setCharacters($characters = 100)
-	{
-		$this->characters = $characters;
-	}
-
-	public function setFile($file = 'codes.txt')
-	{
-		$this->file = $file;
+			}
+		}
 	}
 
 	public function generateAndSave()
 	{
 		$this->ensureInitials();
 
-		for($i = 0; $i < $this->amount; $i ++)
+		for($i = 0; $i < $this->config['amount']; $i ++)
 		{
 			$codes[] = $this->generateCode();
 		}
 
-		file_put_contents($this->file, implode("\r\n", $codes));
+		file_put_contents($this->config['file'], implode("\r\n", $codes));
 	}
 
 	private function generateCode()
 	{
 		$code = '';
 
-		for($i = 0; $i < $this->codeLength; $i ++)
+		for($i = 0; $i < $this->config['codeLength']; $i ++)
 		{
-			$code .= $this->characters[rand(0, count($this->characters)-1)];
+			$code .= $this->config['characters'][rand(0, count($this->config['characters'])-1)];
 		}
 
 		if(in_array($code, $this->codes))
@@ -76,8 +65,7 @@ class CodeGen {
 
 		if($errors)
 		{
-			echo '<h2>Errors:</h2>';
-			die(implode('<br>', $errors));
+			throw new \Exception(implode('<br>', $errors), 1);
 		}
 	}
 
@@ -86,19 +74,19 @@ class CodeGen {
 		$errors = [];
 
 		// Make sure our file doesn't exist
-		if(file_exists($this->file))
+		if(file_exists($this->config['file']))
 		{
 			$errors[] = 'File exists';
 		}
 
 		// Create our file
-		if( ! touch($this->file))
+		if( ! touch($this->config['file']))
 		{
 			$errors[] = 'Could not create file';
 		}
 
 		// Make sure we can write to our file
-		if( ! is_writable($this->file))
+		if( ! is_writable($this->config['file']))
 		{
 			$errors[] = 'Cannot write to file';
 		}
