@@ -1,5 +1,7 @@
 <?php
 
+// This is a usage example of CodeGen
+
 use ThePaavero\CodeGen as CodeGen;
 
 require 'vendor/autoload.php';
